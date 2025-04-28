@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planner Dashbaord-Event Workflow System</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="dashboard-body" data-role="planner">
+    <header class="dashboard-header">
+        <div class="container">
+            <div class="user-info">
+                <span id="user-name">Welcome, [Planner Name]!</span>
+                <button id="logout-button" class="btn btn-secondary btn-sm">Logout</button>
+            </div>
+            <button class="mobile-menu-button">☰</button>
+        </div>
+    </header>
+
+    <div class="dashboard-container">
+        <aside id="sidebar" class="sidebar">
+            <nav>
+                <ul id="sidebar-nav">
+                
+                </ul>
+            </nav>
+        </aside>
+
+        <main id="main-content" class="main-content">
+            <h1 id="dashboard-title">Dashboard Overview</h1>
+            <div id="dashboard-content-area">
+                <p>Welcome to your dashboard. Select an option from the sidebar to get started.</p>
+            </div>
+        </main>
+    </div>
+    <div id="create-event-model" class="model">
+        <div class="modal=content">
+            <span class="close-button" id="close-event-modal">x</span>
+            <h2>Create New Event/Service</h2>
+            <form id="create-event-form">
+                <div class="form-group">
+                    <label for="event-name">Event/Service Name:</label>
+                    <input type="text" id="event-name" name="eventName" required>
+                </div>
+                <div class="form-group">
+                    <label for="event-description">Description:</label>
+                    <textarea id="event-description" name="description" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="event-date">Date & Time (Optional):</label>
+                    <input type="datetime-local" id="event-date" name="eventDate">
+                </div>
+                <div class="form-group">
+                    <label for="event-location">Location (Optional):</label>
+                    <input type="text" id="event-location" name="location">
+                </div>
+                <div class="form-group">
+                    <label for="event-price">Price (Optional):</label>
+                    <input type="text" id="event-price" name="price" step="0.01" min="0">
+                </div>
+                <div class="form-group checkbox-group">
+                    <input type="checkbox" id="event-public" name="isPubliclyBookable" value="true" checked>
+                    <label for="event-public">Publicly Bookable?</label>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Save Event</button>
+                    <button type="button" id="cancel-event-modal" class="btn btn-secondary">Cancel</button>
+                </div>
+                <p id="create-event-status" class="status-message"></p>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Event Workflow System</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="container">
+                
+                 <ul class="nav-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="about.html">About Us</a></li>
+                    <li><a href="contact.html">Contact Us</a></li>
+                    <li><a href="login.html" class="active">Login</a></li>
+                    <li><a href="signup.html" class="btn btn-primary">Sign Up</a></li>
+                 </ul>
+                 <button class="mobile-menu-button">☰</button>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container page-content section auth-page">
+        <h1>Login to Your Account</h1>
+
+        <form id="login-form" class="auth-form">
+            <div class="form-group">
+                <label for="user-type">Login As:</label>
+                <select id="user-type" name="userType" required>
+                    <option value="client">Client</option>
+                    <option value="planner">Event Planner</option>
+                    <option value="vendor">Vendor</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Login</button>
+            <p id="login-status" class="error-message"></p> <!-- For login errors -->
+        </form>
+
+        <p class="auth-switch">Don't have an account? <a href="signup.html">Sign Up here</a></p>
+
+        <!-- Optional: Social Login Buttons -->
+        <!--
+        <div class="social-login">
+            <p>Or login with:</p>
+            <button class="btn-social google">Google</button>
+            <button class="btn-social facebook">Facebook</button>
+        </div>
+        -->
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>© 2024 EventFlow System. All rights reserved.</p>
+             <div class="footer-links">
+                <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>

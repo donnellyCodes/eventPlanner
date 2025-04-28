@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vendor Dashboard - Event Workflow System</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body class="dashboard-body" data-role="vendor">
+
+  <header class="dashboard-header">
+    <div class="container">
+      <div class="user-info">
+        <span id="user-name">Welcome, [Vendor Name]!</span>
+        <button id="logout-button" class="btn btn-secondary btn-sm">Logout</button>
+      </div>
+      <button class="mobile-menu-button">☰</button> <!-- Mobile sidebar toggle -->
+    </div>
+  </header>
+
+  <div class="dashboard-container">
+    <aside id="sidebar" class="sidebar">
+      <nav>
+        <ul id="sidebar-nav">
+          <!-- Vendor-specific Sidebar populated dynamically by script.js -->
+        </ul>
+      </nav>
+    </aside>
+
+    <main id="main-content" class="main-content">
+      <h1 id="dashboard-title">Dashboard Overview</h1>
+      <div id="dashboard-content-area">
+        <!-- Vendor-specific content will load dynamically here -->
+        <p>Welcome to your dashboard. Select an option from the sidebar to get started.</p>
+      </div>
+    </main>
+  </div>
+
+ 
+  
+  <script src="js/script.js"></script>
+</body>
+</html>

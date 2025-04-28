@@ -1,0 +1,6 @@
+# .gitignore
+node_modules/
+.env
+database/ # Usually good to ignore the DB file itself in Git
+npm-debug.log
+*.log

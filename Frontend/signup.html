@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Event Workflow System</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="container">
+                 
+                 <ul class="nav-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="about.html">About Us</a></li>
+                    <li><a href="contact.html">Contact Us</a></li>
+                    <li><a href="login.html">Login</a></li>
+                    <li><a href="signup.html" class="btn btn-primary active">Sign Up</a></li>
+                 </ul>
+                 <button class="mobile-menu-button">☰</button>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container page-content section auth-page">
+        <h1>Create Your Account</h1>
+
+        <form id="signup-form" class="auth-form">
+            <div class="form-group">
+                <label for="user-type-signup">Register As:</label>
+                <select id="user-type-signup" name="userType" required>
+                    <option value="client">Client</option>
+                    <option value="planner">Event Planner</option>
+                    <option value="vendor">Vendor</option>
+                </select>
+            </div>
+             <div class="form-group">
+                <label for="full-name">Full Name:</label>
+                <input type="text" id="full-name" name="fullName" required>
+            </div>
+            <div class="form-group">
+                <label for="email-signup">Email:</label>
+                <input type="email" id="email-signup" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="password-signup">Password:</label>
+                <input type="password" id="password-signup" name="password" required>
+            </div>
+             <div class="form-group">
+                <label for="confirm-password">Confirm Password:</label>
+                <input type="password" id="confirm-password" name="confirmPassword" required>
+            </div>
+
+            <!-- Placeholder for role-specific fields (e.g., business license for Planner/Vendor) -->
+            <div id="role-specific-fields" class="form-group">
+                <!-- JS will populate this if needed -->
+            </div>
+
+            <button type="submit" class="btn btn-primary">Sign Up</button>
+            <p id="signup-status" class="error-message"></p> <!-- For signup errors -->
+        </form>
+
+        <p class="auth-switch">Already have an account? <a href="login.html">Login here</a></p>
+    </main>
+
+    <footer>
+       <div class="container">
+            <p>© 2024 EventFlow System. All rights reserved.</p>
+            <div class="footer-links">
+                <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
