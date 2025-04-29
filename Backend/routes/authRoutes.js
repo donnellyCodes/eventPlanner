@@ -1,25 +1,42 @@
 // backend/routes/authRoutes.js
 const express = require('express');
-const { registerUser, loginUser } = require('../controllers/authController');
-const { body } = require('express-validator'); // For input validation
-console.log(">>>> authRoutes.js file loaded <<<<");
 const router = express.Router();
+const Event = require('../models/Event');
 
-// Validation rules
-const registerValidation = [
-    body('fullName', 'Full name is required').not().isEmpty().trim().escape(),
-    body('email', 'Please include a valid email').isEmail().normalizeEmail(),
-    body('password', 'Password must be at least 6 characters').isLength({ min: 6 }),
-    body('role', 'Role is required (client, planner, or vendor)').isIn(['client', 'planner', 'vendor'])
-];
+router.post('/login', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        if (!email || !password) {
+            return res.status(400).json({ message: 'Email and password are required' });
+        }
 
-const loginValidation = [
-    body('email', 'Please include a valid email').isEmail().normalizeEmail(),
-    body('password', 'Password is required').exists()
-];
+        // Find user
+        const user = await new Promise((resolve, reject) => {
+            Event.db.get('SELECT * FROM users WHERE email = ?', [email], (err, user) => {
+                if (err) reject(err);
+                resolve(user);
+            });
+        });
 
-// Define routes
-router.post('/register', registerValidation, registerUser);
-router.post('/login', loginValidation, loginUser);
+        if (!user || user.password !== password) {
+            return res.status(401).json({ message: 'Invalid email or password' });
+        }
+
+        // Generate mock JWT
+        const token = `mock-jwt-token-${user.id}`;
+        res.json({
+            token,
+            user: {
+                id: user.id,
+                fullName: user.fullName,
+                email: user.email,
+                role: user.role
+            }
+        });
+    } catch (error) {
+        console.error('Error in login:', error);
+        res.status(500).json({ message: 'Server error during login' });
+    }
+});
 
 module.exports = router;

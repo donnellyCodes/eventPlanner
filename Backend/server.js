@@ -1,77 +1,52 @@
 // backend/server.js
 const express = require('express');
-const dotenv = require('dotenv');
-const cors = require('cors');
-const path = require('path'); // Needed for serving static files if frontend is bundled
+const bodyParser = require('body-parser');
+const path = require('path');
+const eventRoutes = require('./routes/eventRoutes');
+const authRoutes = require('./routes/authRoutes');
+const bookingRoutes = require('./routes/bookingRoutes');
+const userRoutes = require('./routes/userRoutes');
+const sqlite3 = require('sqlite3').verbose();
 
-// Load environment variables
-dotenv.config();
-
-// Import database connection (this also initializes the DB)
-const db = require('./config/database');
-
-// Import main router
-const mainRouter = require('./routes/index');
-
-// Initialize Express app
 const app = express();
+const port = 5000;
 
-// --- Middleware ---
-// Enable CORS - Configure allowed origins in production
-app.use(cors()); // Allow all origins for now (development)
-// Example for production:
-// const corsOptions = {
-//   origin: 'https://your-frontend-domain.com' // Replace with your frontend URL
-// };
-// app.use(cors(corsOptions));
+// Database setup
+const dbPath = path.join(__dirname, 'eventPlanner.db');
+const db = new sqlite3.Database(dbPath);
 
-
-// Body Parsers
-app.use(express.json()); // Parse JSON bodies
-app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
-
-// --- API Routes ---
-// Mount the main router at /api path
-app.use('/api', mainRouter);
-
-
-// --- Basic Error Handling Middleware ---
-// Not Found handler (404) - Put this after all your routes
+// Middleware
+app.use(bodyParser.json());
+app.use(express.static(path.join(__dirname, '..'))); // Serve frontend
 app.use((req, res, next) => {
-    const error = new Error(`Not Found - ${req.originalUrl}`);
-    res.status(404);
-    next(error); // Pass error to the next middleware
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end(); // Respond to preflight requests
+    }
+    next();
 });
 
-// General error handler - Must have 4 arguments (err, req, res, next)
-app.use((err, req, res, next) => {
-    const statusCode = res.statusCode === 200 ? 500 : res.statusCode; // Use existing status code if set, otherwise 500
-    console.error("Global Error Handler:", err); // Log the error stack
-    res.status(statusCode);
-    res.json({
-        message: err.message,
-        // Include stack trace only in development mode
-        stack: process.env.NODE_ENV === 'production' ? null : err.stack,
-    });
+// Routes
+console.log('>>>> authRoutes.js file loaded <<<<');
+app.use('/api/auth', authRoutes);
+app.use('/api/events', eventRoutes);
+app.use('/api/bookings', bookingRoutes);
+app.use('/api/users', userRoutes);
+
+// Start server
+app.listen(port, () => {
+    console.log(`Server running at http://localhost:${port}`);
 });
 
-
-// --- Server Activation ---
-const PORT = process.env.PORT || 5000;
-
-app.listen(PORT, () => {
-    console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
-    console.log(`API available at http://localhost:${PORT}/api`);
-});
-
-// Graceful shutdown on signal interruption
+// Close database on process exit
 process.on('SIGINT', () => {
-    console.log('SIGINT signal received: closing SQLite database connection.');
     db.close((err) => {
         if (err) {
-            console.error(err.message);
+            console.error('Error closing SQLite database:', err);
         }
-        console.log('Closed the database connection.');
+        console.log('SQLite database closed');
         process.exit(0);
     });
 });

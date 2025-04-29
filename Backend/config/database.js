@@ -78,7 +78,7 @@ function initializeDatabase() {
             plannerId INTEGER NOT NULL,
             eventName TEXT NOT NULL,
             description TEXT
-            eventDate DATETIME,
+            eventDate TEXT,
             location TEXT,
             price REAL,
             isPublicBookable INTEGER DEFAULT 1,

@@ -15,6 +15,8 @@ router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
 router.use('/bookings', bookingRoutes);
 router.use('/events', eventRoutes);
+
+app.get('/api/events/public', eventController.getPublicEvents);
 // router.use('/events', eventRoutes);
 // router.use('/vendors', vendorRoutes);
 

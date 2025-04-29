@@ -1,73 +1,130 @@
 // backend/controllers/bookingController.js
-const Booking = require('../models/Bookings');
 const Event = require('../models/Event');
 
-// @desc    Get bookings for the currently logged-in user
-// @route   GET /api/bookings/my
-// @access  Private (Requires Authentication via 'protect' middleware)
-exports.getMyBookings = async (req, res) => {
-    // req.user is attached by the 'protect' middleware
-    if (!req.user || !req.user.id) {
-        // This should technically not happen if 'protect' works, but good practice
-        return res.status(401).json({ message: 'Not authorized, user ID not found' });
-    }
-
+exports.createBooking = async (req, res) => {
     try {
-        const bookings = await Booking.findByClientId(req.user.id);
+        const token = req.headers.authorization?.split('Bearer ')[1];
+        if (!token) {
+            return res.status(401).json({ message: 'No token provided' });
+        }
+        const userId = token.split('-')[3]; // Extract userId from mock JWT
+        const { eventId } = req.body;
 
-        // Check if bookings is an array (it should be, even if empty)
-        if (!Array.isArray(bookings)) {
-            console.error("Model did not return an array for bookings:", bookings);
-            return res.status(500).json({ message: "Server error retrieving bookings data format."});
+        // Validate user
+        const user = await new Promise((resolve, reject) => {
+            Event.db.get('SELECT * FROM users WHERE id = ? AND role = ?', [userId, 'client'], (err, user) => {
+                if (err) reject(err);
+                resolve(user);
+            });
+        });
+        if (!user) {
+            return res.status(403).json({ message: 'Only clients can book events' });
         }
 
-        res.json(bookings); // Send the array of bookings (can be empty)
+        // Validate event
+        const event = await new Promise((resolve, reject) => {
+            Event.db.get('SELECT * FROM events WHERE id = ? AND isPubliclyBookable = 1', [eventId], (err, event) => {
+                if (err) reject(err);
+                resolve(event);
+            });
+        });
+        if (!event) {
+            return res.status(404).json({ message: 'Event not found or not bookable' });
+        }
 
+        // Create booking
+        const booking = await new Promise((resolve, reject) => {
+            Event.db.run(
+                `INSERT INTO bookings (userId, eventId, bookingDate)
+                 VALUES (?, ?, ?)`,
+                [userId, eventId, new Date().toISOString()],
+                function (err) {
+                    if (err) reject(err);
+                    Event.db.get('SELECT * FROM bookings WHERE id = ?', [this.lastID], (err, booking) => {
+                        if (err) reject(err);
+                        resolve(booking);
+                    });
+                }
+            );
+        });
+
+        res.status(201).json({
+            id: booking.id,
+            userId: booking.userId,
+            eventId: booking.eventId,
+            bookingDate: booking.bookingDate
+        });
     } catch (error) {
-        console.error("Error in getMyBookings controller:", error);
-        res.status(500).json({ message: 'Server error fetching bookings', error: error.message });
+        console.error('Error in createBooking controller:', error);
+        res.status(500).json({ message: 'Server error creating booking' });
     }
 };
 
-exports.createBooking = async (req, res) => {
-    const { eventId } = req.body;
-    const clientId = req.user.id; // From protect middleware
-
-    if (!eventId) {
-        return res.status(400).json({ message: 'Event ID is required to create a booking.' });
-    }
-
+exports.getMyBookings = async (req, res) => {
     try {
-        // 1. Find the event being booked to get its details
-        const eventToBook = await Event.findById(eventId);
-        if (!eventToBook) {
-            return res.status(404).json({ message: 'Event not found.' });
+        const token = req.headers.authorization?.split('Bearer ')[1];
+        if (!token) {
+            return res.status(401).json({ message: 'No token provided' });
         }
-        if (!eventToBook.isPubliclyBookable) {
-             return res.status(400).json({ message: 'This event is not currently available for booking.' });
+        const userId = token.split('-')[3]; // Extract userId from mock JWT
+
+        // Validate user
+        const user = await new Promise((resolve, reject) => {
+            Event.db.get('SELECT * FROM users WHERE id = ? AND role = ?', [userId, 'client'], (err, user) => {
+                if (err) reject(err);
+                resolve(user);
+            });
+        });
+        if (!user) {
+            return res.status(403).json({ message: 'Only clients can view bookings' });
         }
 
-        // 2. Prepare booking data
-        const bookingData = {
-            clientId: clientId,
-            plannerId: eventToBook.plannerId, // Get planner from the event
-            eventName: eventToBook.eventName,
-            eventDate: eventToBook.eventDate, // Use date from the event
-            location: eventToBook.location,
-            status: 'Upcoming', // Initial status
-            paymentStatus: 'Pending' // Initial payment status
-            // Add price from event if needed in bookings table later
-        };
+        // Fetch bookings with event details
+        const bookings = await new Promise((resolve, reject) => {
+            Event.db.all(`
+                SELECT
+                    b.id AS bookingId,
+                    b.userId,
+                    b.eventId,
+                    b.bookingDate,
+                    e.eventName,
+                    e.description,
+                    e.eventDate,
+                    e.location,
+                    e.price,
+                    e.isPubliclyBookable,
+                    e.plannerId,
+                    u.fullName AS plannerName
+                FROM bookings b
+                JOIN events e ON b.eventId = e.id
+                JOIN users u ON e.plannerId = u.id
+                WHERE b.userId = ?
+                ORDER BY b.bookingDate DESC
+            `, [userId], (err, bookings) => {
+                if (err) reject(err);
+                resolve(bookings);
+            });
+        });
 
-        // 3. Create the booking using the model
-        const newBooking = await Booking.create(bookingData);
-
-        // 4. Respond with the newly created booking
-        res.status(201).json(newBooking);
-
+        res.json(bookings.map(booking => ({
+            bookingId: booking.bookingId,
+            userId: booking.userId,
+            eventId: booking.eventId,
+            bookingDate: booking.bookingDate,
+            event: {
+                id: booking.eventId,
+                eventName: booking.eventName,
+                description: booking.description,
+                eventDate: booking.eventDate,
+                location: booking.location,
+                price: booking.price,
+                isPubliclyBookable: !!booking.isPubliclyBookable,
+                plannerId: booking.plannerId,
+                plannerName: booking.plannerName
+            }
+        })));
     } catch (error) {
-        console.error("Error in createBooking controller:", error);
-        // Could add checks for specific DB errors if needed
-        res.status(500).json({ message: 'Server error creating booking', error: error.message });
+        console.error('Error in getMyBookings controller:', error);
+        res.status(500).json({ message: 'Server error fetching bookings' });
     }
 };
