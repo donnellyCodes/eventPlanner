@@ -1,4 +1,4 @@
-```markdown
+
 # Event Planner
 
 Event Planner is a web application designed to streamline event management. It allows clients to browse, book, and manage events, while planners and vendors can organize events. The application features a client dashboard with user authentication, event browsing, booking management, and profile updates, powered by a Node.js/Express backend with SQLite and a JavaScript-based frontend.
