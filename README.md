@@ -126,7 +126,7 @@ eventPlanner/
    From the project root, serve the frontend:
    ```bash
    cd "C:\Users\user\My project\eventPlanner"
-   npx serve -p 8080
+   http-server -c-1
    ```
    Access at:
    - [http://localhost:8080/login.html](http://localhost:8080/login.html)
